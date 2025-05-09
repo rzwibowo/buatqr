@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Simple QR Code Generator</title>
+        <link rel="stylesheet" href="./plugins/bulma.min.css">
+
+        <link rel="icon" type="image/png" href="./favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+        <link rel="shortcut icon" href="./favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="MyWebSite" />
+        <link rel="manifest" href="./site.webmanifest" />
+    </head>
+
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">
+                Simple QR Code Generator
+            </h1>
+            <p class="subtitle">
+                A simple-straightforward and free QR Code Generator
+            </p>
+        </div>
+    </section>
+
+    <div class="columns">
+        <div class="column"></div>
+        <div class="column">
+            <div class="field">
+                <div class="control">
+                    <textarea class="textarea" placeholder="Put your text/URL here then hit Generate"
+                        id="txtToGen"></textarea>
+                </div>
+            </div>
+            <div class="columns">
+                <div class="column">
+                    <div class="field">
+                        <div class="label">
+                            Color 1
+                        </div>
+                    </div>
+                    <div class="control">
+                        <input type="color" name="" id="clr1" value="#000000" style="width: 100%;">
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="field">
+                        <div class="label">
+                            Color 2
+                        </div>
+                        <div class="control">
+                            <input type="color" name="" id="clr2" value="#ffffff" style="width: 100%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <button class="button is-primary is-fullwidth" id="btnGenerate">▶️ Generate</button>
+                </div>
+            </div>
+
+            <div id="qrcode" class="my-3"></div>
+
+            <div class="field">
+                <div class="control has-text-centered">
+                    <button class="button is-secondary" id="btnDownload">⬇️ Download JPEG</button>
+                </div>
+            </div>
+        </div>
+        <div class="column"></div>
+    </div>
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>
+                <img src="./lightning.png" alt="" style="height: 16px; vertical-align: middle;">
+                <a href="https://wibowo-dev.web.app">wibowo-dev.web.app</a>.
+                <br>
+                Built with: <a href="https://bulma.io/">Bulma</a>,
+                <a href="https://jquery.com/">JQuery</a>,
+                <a href="https://davidshimjs.github.io/qrcodejs/">qrcodejs</a>,
+                and help of <a href="https://www.geeksforgeeks.org/how-to-convert-base64-to-file-in-javascript/">Geeks
+                    For Geeks</a>.
+                <br>
+                Hosted in <a href="https://github.com/">Github</a>.
+            </p>
+        </div>
+    </footer>
+
+
+    <script type="text/javascript" src="./plugins/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="./plugins/qrcodejs/qrcode.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            generateQr()
+
+            $("#btnGenerate").on("click", function () {
+                const textToGenerate = $("#txtToGen").val().trim()
+                generateQr(textToGenerate)
+            })
+
+            $("#btnDownload").on("click", function () {
+                const base64Data = $("#qrcode>img").attr("src")
+                downloadJpeg(base64Data)
+            })
+        })
+
+        // Function to convert Base64 string to Blob and trigger download
+        function base64ToFile(base64String, mimeType, fileName) {
+            // Remove data URL scheme if present
+            const base64Data = base64String.replace(/^data:.+;base64,/, '');
+            const byteCharacters = atob(base64Data) // Decode Base64 string
+            const byteNumbers = new Array(byteCharacters.length)
+
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i)
+            }
+
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: mimeType })
+            const url = URL.createObjectURL(blob)
+
+            // Create a link element to download the file
+            const link = document.createElement('a')
+            link.href = url
+            link.download = fileName
+            link.click()
+
+            // Cleanup
+            URL.revokeObjectURL(url)
+        }
+
+        function downloadJpeg(base64Data) {
+            const mimeType = "image/jpeg" // MIME type for JPEG image
+            const fileName = "qrcode.jpg" // Desired file name with extension
+
+            base64ToFile(base64Data, mimeType, fileName)
+        }
+
+        function generateQr(text = "https://wibowo-dev.web.app") {
+            const element = document.getElementById("qrcode")
+
+            const color1 = $("#clr1").val()
+            const color2 = $("#clr2").val()
+
+            element.innerHTML = ""
+
+            new QRCode(element, {
+                text: text,
+                colorDark: color1,
+                colorLight: color2,
+            })
+
+            $("#qrcode>img").addClass("mx-auto")
+        }
+    </script>
+
+</body>
+
+</html>
